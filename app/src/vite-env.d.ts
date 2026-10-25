@@ -75,6 +75,39 @@ interface StopTestsResult {
 
 /**
  * =========================================================
+ * Git Types
+ * =========================================================
+ */
+
+type GitChange = {
+  path: string;
+  status: string;
+  kind:
+    | "modified"
+    | "untracked"
+    | "added"
+    | "deleted"
+    | "renamed";
+  staged: boolean;
+  unstaged: boolean;
+};
+
+type GitStatusResult = {
+  success: true;
+  branch: string;
+  changes: GitChange[];
+};
+
+type GitCommit = {
+  hash: string;
+  shortHash: string;
+  message: string;
+  author: string;
+  date: string;
+};
+
+/**
+ * =========================================================
  * KryomCode API
  * =========================================================
  */
@@ -87,13 +120,11 @@ interface KryomCodeAPI {
 
   /**
    * =======================================================
-   * Project
+   * Project / Filesystem
    * =======================================================
    */
 
-  selectProject: () => Promise<
-    string | null
-  >;
+  selectProject: () => Promise<string | null>;
 
   readDirectory: (
     directoryPath: string,
@@ -123,9 +154,7 @@ interface KryomCodeAPI {
 
   delete: (
     targetPath: string,
-    targetType:
-      | "file"
-      | "directory",
+    targetType: "file" | "directory",
   ) => Promise<DeleteResult>;
 
   /**
@@ -145,21 +174,15 @@ interface KryomCodeAPI {
   stopTerminal: () => Promise<StopTerminalResult>;
 
   onTerminalOutput: (
-    callback: (
-      data: string,
-    ) => void,
+    callback: (data: string) => void,
   ) => () => void;
 
   onTerminalError: (
-    callback: (
-      data: string,
-    ) => void,
+    callback: (data: string) => void,
   ) => () => void;
 
   onTerminalExit: (
-    callback: (
-      code: number | null,
-    ) => void,
+    callback: (code: number | null) => void,
   ) => () => void;
 
   /**
@@ -168,55 +191,55 @@ interface KryomCodeAPI {
    * =======================================================
    */
 
-  /**
-   * Start pytest in the
-   * currently opened project.
-   */
   runTests: (
     projectPath: string,
   ) => Promise<RunTestsResult>;
 
-  /**
-   * Stop the active pytest process.
-   */
   stopTests: () => Promise<StopTestsResult>;
 
-  /**
-   * Stream pytest stdout.
-   */
   onTestOutput: (
-    callback: (
-      data: string,
-    ) => void,
+    callback: (data: string) => void,
   ) => () => void;
 
-  /**
-   * Stream pytest stderr.
-   */
   onTestError: (
-    callback: (
-      data: string,
-    ) => void,
+    callback: (data: string) => void,
   ) => () => void;
 
-  /**
-   * Called when pytest exits.
-   */
   onTestExit: (
-    callback: (
-      code: number | null,
-    ) => void,
+    callback: (code: number | null) => void,
+  ) => () => void;
+
+  onTestProcessError: (
+    callback: (message: string) => void,
   ) => () => void;
 
   /**
-   * Called when pytest could
-   * not be started.
+   * =======================================================
+   * Git Integration
+   * =======================================================
    */
-  onTestProcessError: (
-    callback: (
-      message: string,
-    ) => void,
-  ) => () => void;
+
+  gitGetStatus: () => Promise<GitStatusResult>;
+
+  gitGetHistory: (
+    limit?: number,
+  ) => Promise<GitCommit[]>;
+
+  gitStageFiles: (
+    paths: string[],
+  ) => Promise<GitStatusResult>;
+
+  gitUnstageFiles: (
+    paths: string[],
+  ) => Promise<GitStatusResult>;
+
+  gitCommitChanges: (
+    message: string,
+  ) => Promise<GitStatusResult>;
+
+  gitPushChanges: () => Promise<GitStatusResult>;
+
+  gitPullChanges: () => Promise<GitStatusResult>;
 }
 
 /**

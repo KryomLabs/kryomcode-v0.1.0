@@ -18,6 +18,7 @@ import Requirements from "./components/ProjectIntelligence/Requirements";
 import Architecture from "./components/ProjectIntelligence/Architecture";
 import ProjectPlan from "./components/ProjectIntelligence/ProjectPlan";
 import Testing from "./components/ProjectIntelligence/Testing";
+import AIChat from "./components/AI/AIChat";
 
 import "./App.css";
 
@@ -33,7 +34,6 @@ type IntelligenceSection =
   | "deployment";
 
 type MaximizedPanel =
-  | "explorer"
   | "editor"
   | "intelligence"
   | BottomPanel
@@ -806,7 +806,6 @@ function App() {
     (section) => section.id === intelligenceSection,
   );
 
-  const isExplorerMaximized = maximizedPanel === "explorer";
   const isEditorMaximized = maximizedPanel === "editor";
 
   const isIntelligenceMaximized =
@@ -840,7 +839,7 @@ function App() {
       <header className="topbar">
         <div className="brand">
           <div className="brand-mark" aria-hidden="true">
-            <span>⬡</span>
+            <span>K</span>
           </div>
 
           <span className="brand-name">KryomCode</span>
@@ -925,15 +924,14 @@ function App() {
       </header>
 
       {/* Activity bar */}
-      <div className="activity-bar" aria-label="Activity bar">
+      <div className="activity-bar" role="toolbar" aria-label="Activity bar">
         <button
           type="button"
-          className={`activity-icon ${
-            isExplorerMaximized ? "active" : ""
-          }`}
+          className="activity-icon active"
           title="Explorer"
           aria-label="Explorer"
-          onClick={() => toggleMaximize("explorer")}
+          aria-pressed="true"
+          onClick={() => setMaximizedPanel(null)}
         >
           ◫
         </button>
@@ -977,10 +975,14 @@ function App() {
         <button
           type="button"
           className={`activity-icon ${
-            activeBottomPanel === "ai" && bottomPanelVisible
-              ? "active"
-              : ""
-          }`}
+            activeBottomPanel === "ai" && (<div className="utility-panel ai-activity-panel">
+              <AIChat
+                projectPath={projectPath}
+                onAction={handleAiAction}
+                onOpenProblems={() => showBottomPanel("problems")}
+              />
+              </div>)
+      }`}
           title="AI Activity"
           aria-label="AI Activity"
           onClick={() => showBottomPanel("ai")}
@@ -1025,35 +1027,9 @@ function App() {
       >
         {/* Project Explorer */}
         <aside
-          className={`explorer-shell ${
-            isExplorerMaximized ? "panel-maximized" : ""
-          }`}
-          style={{
-            width: isExplorerMaximized
-              ? undefined
-              : explorerWidth,
-          }}
+          className="explorer-shell"
+          style={{ width: explorerWidth }}
         >
-          <div className="panel-floating-actions">
-            <button
-              type="button"
-              className="panel-action-button"
-              title={
-                isExplorerMaximized
-                  ? "Restore Explorer"
-                  : "Maximize Explorer"
-              }
-              aria-label={
-                isExplorerMaximized
-                  ? "Restore Explorer"
-                  : "Maximize Explorer"
-              }
-              onClick={() => toggleMaximize("explorer")}
-            >
-              {isExplorerMaximized ? "❐" : "□"}
-            </button>
-          </div>
-
           <ProjectExplorer
             projectPath={projectPath}
             entries={entries}
@@ -1064,7 +1040,7 @@ function App() {
           />
         </aside>
 
-        {!isExplorerMaximized && !isEditorMaximized && (
+        {!isEditorMaximized && (
           <div
             className="resize-handle resize-handle-vertical explorer-resize-handle"
             role="separator"
@@ -1211,15 +1187,14 @@ function App() {
             <div className="welcome-screen">
               <div className="welcome-content">
                 <div className="welcome-eyebrow">
-                  <span className="welcome-dot" />
-                  YOUR AI-POWERED WORKSPACE
+                  <span className="welcome-dot" aria-hidden="true" />
+                  KRYOMCODE · BUILD · CODE · INNOVATE
                 </div>
 
-                <h1>From Idea to Working Software</h1>
+                <h1>Build. Code. Innovate.</h1>
 
                 <p className="welcome-description">
-                  KryomCode helps you build, iterate, and ship — guided
-                  by your AI engineering partner.
+                  Your intelligent workspace for modern development, with your project, editor, terminal, and engineering tools in one place.
                 </p>
 
                 {!projectPath && (
@@ -1344,7 +1319,7 @@ function App() {
           )}
         </section>
 
-        {!isExplorerMaximized && !isEditorMaximized && (
+        {!isEditorMaximized && (
           <div
             className="resize-handle resize-handle-vertical intelligence-resize-handle"
             role="separator"

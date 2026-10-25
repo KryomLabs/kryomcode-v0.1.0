@@ -11,30 +11,16 @@ const {
  * Creates a safe renderer-side subscription
  * without exposing ipcRenderer directly.
  */
-function createEventSubscription(
-  channel,
-  callback,
-) {
-  const listener = (
-    _event,
-    ...args
-  ) => {
+function createEventSubscription(channel, callback) {
+  const listener = (_event, ...args) => {
     callback(...args);
   };
 
-  ipcRenderer.on(
-    channel,
-    listener,
-  );
+  ipcRenderer.on(channel, listener);
 
-  /**
-   * Return cleanup function.
-   */
+  // Return cleanup function.
   return () => {
-    ipcRenderer.removeListener(
-      channel,
-      listener,
-    );
+    ipcRenderer.removeListener(channel, listener);
   };
 }
 
@@ -43,8 +29,8 @@ function createEventSubscription(
  * KryomCode Renderer API
  * =========================================================
  *
- * Only explicitly approved APIs are
- * exposed to the renderer process.
+ * Only explicitly approved APIs are exposed
+ * to the renderer process.
  *
  * ipcRenderer itself is NEVER exposed.
  * =========================================================
@@ -62,91 +48,48 @@ const kryomcodeAPI = {
    * =======================================================
    */
 
-  /**
-   * Open a project directory.
-   */
   selectProject: () =>
-    ipcRenderer.invoke(
-      "project:select",
-    ),
+    ipcRenderer.invoke("project:select"),
 
-  /**
-   * Read a directory.
-   */
-  readDirectory: (
-    directoryPath,
-  ) =>
+  readDirectory: (directoryPath) =>
     ipcRenderer.invoke(
       "project:read-directory",
       directoryPath,
     ),
 
-  /**
-   * Read a text file.
-   */
-  readFile: (
-    filePath,
-  ) =>
+  readFile: (filePath) =>
     ipcRenderer.invoke(
       "project:read-file",
       filePath,
     ),
 
-  /**
-   * Write a text file.
-   */
-  writeFile: (
-    filePath,
-    content,
-  ) =>
+  writeFile: (filePath, content) =>
     ipcRenderer.invoke(
       "project:write-file",
       filePath,
       content,
     ),
 
-  /**
-   * Create a new file.
-   */
-  createFile: (
-    filePath,
-  ) =>
+  createFile: (filePath) =>
     ipcRenderer.invoke(
       "project:create-file",
       filePath,
     ),
 
-  /**
-   * Create a new folder.
-   */
-  createFolder: (
-    directoryPath,
-  ) =>
+  createFolder: (directoryPath) =>
     ipcRenderer.invoke(
       "project:create-folder",
       directoryPath,
     ),
 
-  /**
-   * Rename a file or directory.
-   */
-  rename: (
-    oldPath,
-    newPath,
-  ) =>
+  rename: (oldPath, newPath) =>
     ipcRenderer.invoke(
       "project:rename",
       oldPath,
       newPath,
     ),
 
-  /**
-   * Delete a file or directory.
-   */
-  delete: (
-    targetPath,
-    targetType,
-  ) =>
+  delete: (targetPath, targetType) =>
     ipcRenderer.invoke(
       "project:delete",
       targetPath,
@@ -159,64 +102,34 @@ const kryomcodeAPI = {
    * =======================================================
    */
 
-  /**
-   * Start integrated terminal.
-   */
-  startTerminal: (
-    projectPath,
-  ) =>
+  startTerminal: (projectPath) =>
     ipcRenderer.invoke(
       "terminal:start",
       projectPath,
     ),
 
-  /**
-   * Send command to terminal.
-   */
-  writeTerminal: (
-    command,
-  ) =>
+  writeTerminal: (command) =>
     ipcRenderer.invoke(
       "terminal:write",
       command,
     ),
 
-  /**
-   * Stop integrated terminal.
-   */
   stopTerminal: () =>
-    ipcRenderer.invoke(
-      "terminal:stop",
-    ),
+    ipcRenderer.invoke("terminal:stop"),
 
-  /**
-   * Terminal stdout.
-   */
-  onTerminalOutput: (
-    callback,
-  ) =>
+  onTerminalOutput: (callback) =>
     createEventSubscription(
       "terminal:output",
       callback,
     ),
 
-  /**
-   * Terminal stderr.
-   */
-  onTerminalError: (
-    callback,
-  ) =>
+  onTerminalError: (callback) =>
     createEventSubscription(
       "terminal:error",
       callback,
     ),
 
-  /**
-   * Terminal process exit.
-   */
-  onTerminalExit: (
-    callback,
-  ) =>
+  onTerminalExit: (callback) =>
     createEventSubscription(
       "terminal:exit",
       callback,
@@ -228,71 +141,80 @@ const kryomcodeAPI = {
    * =======================================================
    */
 
-  /**
-   * Start pytest.
-   *
-   * The main process validates the
-   * project path before execution.
-   */
-  runTests: (
-    projectPath,
-  ) =>
+  runTests: (projectPath) =>
     ipcRenderer.invoke(
       "tests:run",
       projectPath,
     ),
 
-  /**
-   * Stop the active pytest process.
-   */
   stopTests: () =>
-    ipcRenderer.invoke(
-      "tests:stop",
-    ),
+    ipcRenderer.invoke("tests:stop"),
 
-  /**
-   * Test stdout.
-   */
-  onTestOutput: (
-    callback,
-  ) =>
+  onTestOutput: (callback) =>
     createEventSubscription(
       "tests:output",
       callback,
     ),
 
-  /**
-   * Test stderr.
-   */
-  onTestError: (
-    callback,
-  ) =>
+  onTestError: (callback) =>
     createEventSubscription(
       "tests:error",
       callback,
     ),
 
-  /**
-   * Test process exit.
-   */
-  onTestExit: (
-    callback,
-  ) =>
+  onTestExit: (callback) =>
     createEventSubscription(
       "tests:exit",
       callback,
     ),
 
-  /**
-   * Test process startup error.
-   */
-  onTestProcessError: (
-    callback,
-  ) =>
+  onTestProcessError: (callback) =>
     createEventSubscription(
       "tests:process-error",
       callback,
     ),
+
+  /**
+   * =======================================================
+   * Git Integration
+   * =======================================================
+   *
+   * These methods communicate with the main process.
+   * Corresponding Git IPC handlers must exist in main.cjs.
+   */
+
+  gitGetStatus: () =>
+    ipcRenderer.invoke("git:getStatus"),
+
+  gitGetHistory: (limit = 20) =>
+    ipcRenderer.invoke(
+      "git:getHistory",
+      limit,
+    ),
+
+  gitStageFiles: (paths) =>
+    ipcRenderer.invoke(
+      "git:stageFiles",
+      paths,
+    ),
+
+  gitUnstageFiles: (paths) =>
+    ipcRenderer.invoke(
+      "git:unstageFiles",
+      paths,
+    ),
+
+  gitCommitChanges: (message) =>
+    ipcRenderer.invoke(
+      "git:commitChanges",
+      message,
+    ),
+
+  gitPushChanges: () =>
+    ipcRenderer.invoke("git:pushChanges"),
+
+  gitPullChanges: () =>
+    ipcRenderer.invoke("git:pullChanges"),
 };
 
 /**

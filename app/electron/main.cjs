@@ -8,6 +8,7 @@ const {
 const fs = require("fs/promises");
 const path = require("path");
 const { spawn } = require("child_process");
+const gitService = require("./services/git.cjs");
 
 const {
   startTests,
@@ -149,6 +150,42 @@ function registerSecureHandler(channel, handler) {
     return handler(event, ...args);
   });
 }
+
+
+registerSecureHandler("git:getStatus", async () => {
+  const projectPath = requireProject();
+  return gitService.getStatus(projectPath);
+});
+
+registerSecureHandler("git:getHistory", async (_event, limit) => {
+  const projectPath = requireProject();
+  return gitService.getHistory(projectPath, limit);
+});
+
+registerSecureHandler("git:stageFiles", async (_event, paths) => {
+  const projectPath = requireProject();
+  return gitService.stageFiles(projectPath, paths);
+});
+
+registerSecureHandler("git:unstageFiles", async (_event, paths) => {
+  const projectPath = requireProject();
+  return gitService.unstageFiles(projectPath, paths);
+});
+
+registerSecureHandler("git:commitChanges", async (_event, message) => {
+  const projectPath = requireProject();
+  return gitService.commitChanges(projectPath, message);
+});
+
+registerSecureHandler("git:pushChanges", async () => {
+  const projectPath = requireProject();
+  return gitService.pushChanges(projectPath);
+});
+
+registerSecureHandler("git:pullChanges", async () => {
+  const projectPath = requireProject();
+  return gitService.pullChanges(projectPath);
+});
 
 
 /**
