@@ -2,260 +2,197 @@
 
 ## From Idea to Working Software
 
-KryomCode is an AI-native software engineering platform built to help developers move from idea → code → execution → testing → working software inside one development environment.
+**KryomCode is an AI-native software engineering environment for planning, building, testing, debugging, and shipping software inside one intelligent IDE.**
 
-KryomCode is being designed around a simple principle:
+> Core Principle: *The AI should operate on the project, not merely talk about the project.*
 
-«The AI should operate on the project, not merely talk about the project.»
+Built solo for the **Meta Global AI Developer Hackathon - Indie Track**. Built with Meta's newest models via Meta Model API.
 
-The long-term goal is to build an intelligent engineering environment where AI can understand a project's structure, work with its files and code, execute tools, run tests, diagnose failures, make changes, and verify results — while the developer remains in control.
+---
+
+## Demo
+
+*2-min demo video coming soon - Idea prompt to working code inside KryomCode.*
+
+What the demo shows:
+
+1. Open a project folder
+2. Ask AI in Cursor-style chat: "Create a FastAPI auth API with JWT"
+3. AI understands project structure, creates files, edits code
+4. Run tests from integrated terminal
+5. Commit to GitHub without leaving the IDE
 
 ---
 
 ## Vision
 
-Software development is no longer just about writing code.
+Modern engineering is not just writing code. It is architecture, dependencies, terminals, testing, debugging, Git, docs, security, CI/CD and AI systems.
 
-Modern engineering involves:
+KryomCode brings it together:
 
-- Project architecture
-- Source code
-- Dependencies
-- Terminals
-- Testing
-- Debugging
-- Git
-- GitHub
-- Documentation
-- Security
-- CI/CD
-- Cloud infrastructure
-- AI systems
-
-KryomCode aims to bring these capabilities together into an AI-native software engineering environment.
-
-The long-term vision is:
-
+'''
 Human Intent
-     │
-     ▼
-┌─────────────────────┐
-│      KryomCode      │
-│                     │
-│  Understand         │
-│  Plan               │
-│  Generate           │
-│  Modify             │
-│  Execute            │
-│  Test               │
-│  Diagnose           │
-│  Repair             │
-│  Verify             │
-└──────────┬──────────┘
-           │
-           ▼
-    Working Software
+     |
+     v
++--------------+
+|  KryomCode   |
+| Understand   |
+| Plan         |
+| Generate     |
+| Modify       |
+| Execute      |
+| Test         |
+| Diagnose     |
+| Repair       |
+| Verify       |
++--------------+
+     |
+     v
+Working Software
+'''
 
----
-
-## Core Principle
-
-Traditional development tools primarily provide developers with tools for writing and managing software.
-
-KryomCode is being designed around a different model:
-
-Traditional IDE
-
-Developer
-   ↓
-Writes Code
-   ↓
-Runs Tools
-   ↓
-Reads Errors
-   ↓
-Fixes Problems
-
-versus:
-
-AI-Native Engineering
-
-Developer
-   ↓
-Defines Intent
-   ↓
-KryomCode Understands Project
-   ↓
-Plans
-   ↓
-Acts
-   ↓
-Tests
-   ↓
-Diagnoses
-   ↓
-Repairs
-   ↓
-Verifies
-   ↓
-Developer Supervises
-
-The objective is not to replace developers.
-
-The objective is to increase developer leverage.
+The objective is not to replace developers. The objective is to increase developer leverage.
 
 ---
 
 ## Current Status
 
-KryomCode is currently in active early-stage development.
-
-The foundational desktop development environment is being built before introducing deeper autonomous AI capabilities.
+KryomCode is in active development. Hackathon MVP is functional.
 
 ### Current Progress
 
-Capability| Status
-Desktop Application| ✅
-Project Explorer| ✅
-File Reading| ✅
-Monaco Code Editor| ✅
-File Saving| ✅
-Multiple Editor Tabs| ✅
-Create File / Folder| ✅
-Rename / Delete| ✅
-Integrated Terminal| ✅
-Problems / Diagnostics| 🔄
-Test Runner| ⏭
-Git Integration| ⏭
-AI Integration| ⏭
-Project Intelligence| ⏭
-Autonomous Engineering| ⏭
+| Capability | Status |
+|------------|--------|
 
-«KryomCode is currently experimental and pre-release software.»
+| Desktop Application (Electron) | ✅ |
+| Project Explorer | ✅ |
+| File Reading / Saving | ✅ |
+| Monaco Code Editor | ✅ |
+| Multiple Editor Tabs | ✅ |
+| Create / Rename / Delete File-Folder | ✅ |
+| Integrated Terminal (PowerShell) | ✅ |
+| Problems / Diagnostics | ✅ |
+| Git Integration - status, diff, commit | ✅ |
+| GitHub Integration | ✅ |
+| AI Chat - Frontend (Cursor-style) | ✅ |
+| Meta Model API Integration | ✅ |
+| Project Intelligence - basic context | 🔄 |
+| Test Runner | 🔄 |
+| Autonomous Engineering | ⏭ |
 
 ---
 
-## Current Features
+## Features
 
 ### Project Explorer
 
-KryomCode currently provides a local project explorer for working directly with software projects.
-
-Supported operations include:
-
 - Open local project directories
-- Browse files and folders
-- Navigate nested directories
-- Refresh project contents
-- Create files
-- Create folders
-- Rename files and folders
-- Delete files and folders
+- Browse nested files and folders
+- Create, rename, delete files and folders
+- Refresh and navigate large codebases
 
----
+### Code Editor
 
-## Code Editor
+Powered by Monaco Editor (VS Code engine):
 
-KryomCode uses Monaco Editor as its code-editing foundation.
-
-Current functionality includes:
-
-- Code editing
 - Syntax-aware editing
-- Opening files
-- Multiple editor tabs
-- Switching between files
-- Saving modified files
+- Multiple tabs
+- Fast file switching
+- Auto-save
 
----
+### Integrated Terminal
 
-## Integrated Terminal
+- PowerShell terminal inside project root
+- Persistent process
+- Run `python --version`, `npm install`, `pytest` directly
+- Standard output and error streaming
 
-KryomCode includes an integrated PowerShell terminal connected to the opened project.
+### Git & GitHub Integration
 
-Current functionality includes:
+- Git status and diff viewer
+- Commit creation inside IDE
+- Branch awareness
+- GitHub push/pull workflow
+- AI-assisted commit messages (planned)
 
-- Start terminal inside the project
-- Execute commands
-- Receive standard output
-- Receive error output
-- Stop terminal
-- Maintain a persistent terminal process
-- Execute commands from the project's working directory
+### AI-Native Engineering - Frontend Complete
 
-Example:
+- Cursor-style AI chat panel
+- Project-aware context: sends open files + folder structure to model
+- Code generation directly into files
+- AI Router architecture to avoid provider lock-in
 
-python --version
+**Hackathon integration:**
 
-The terminal foundation will later become an important tool for the KryomCode AI engineering agent.
+- Muse Spark series via Meta Model API
+- Muse Wonder via Meta Model API
+- Extensible to Muse Image and SAM 3.1
+
+### Project Intelligence (In Progress)
+
+Instead of isolated prompts, KryomCode builds structured understanding from:
+
+- Project structure + source code + dependencies
+- Config + Git history + tests + docs + diagnostics
 
 ---
 
 ## Architecture
 
-KryomCode is being developed with a layered architecture separating the user interface, Electron runtime, IPC communication, and core services.
+Layered architecture to keep AI tools controlled and UI decoupled:
 
-┌──────────────────────────────────────────────────┐
-│                    KryomCode                     │
-│                                                  │
-│  ┌────────────────────────────────────────────┐  │
-│  │                 UI Layer                   │  │
-│  │                                            │  │
-│  │ Explorer · Editor · Tabs · Terminal        │  │
-│  │ Problems · Tests · Git · AI                │  │
-│  └──────────────────────┬─────────────────────┘  │
-│                         │                        │
-│                         ▼                        │
-│  ┌────────────────────────────────────────────┐  │
-│  │              Electron IPC                  │  │
-│  │                                            │  │
-│  │ Project · Filesystem · Terminal · Tools    │  │
-│  └──────────────────────┬─────────────────────┘  │
-│                         │                        │
-│                         ▼                        │
-│  ┌────────────────────────────────────────────┐  │
-│  │             Core Services                  │  │
-│  │                                            │  │
-│  │ Core · Project · Filesystem                │  │
-│  │ Intelligence · AI · Git                   │  │
-│  └────────────────────────────────────────────┘  │
-└──────────────────────────────────────────────────┘
+'''
++----------------------------------------+
+| KryomCode UI                           |
+| Explorer - Editor - Tabs - Terminal    |
+| Problems - Git - AI Chat               |
++-------------------+--------------------+
+                    |
+                    v
++----------------------------------------+
+| Electron IPC                           |
+| Project - Filesystem - Terminal        |
++----------------------------------------+
+                    |
+                    v
++----------------------------------------+
+| Core Services                          |
+| Core - Project - Filesystem            |
+| Intelligence - AI - Git                |
++----------------------------------------+
+'''
 
-This separation is intentional.
-
-The future AI layer should interact with the development environment through controlled tools and services rather than being tightly coupled to the user interface.
+The AI layer interacts through controlled tools and services, not directly with UI.
 
 ---
 
 ## Technology Stack
 
-Technology| Role
-Electron| Desktop application runtime
-React| User interface
-TypeScript| Frontend application development
-Vite| Frontend build tooling
-Monaco Editor| Code editor
-Node.js| Electron/runtime services
-Python| Core services and future engineering infrastructure
-PowerShell| Integrated Windows terminal
-Git| Version control
-GitHub| Source hosting and collaboration
+| Technology | Role |
+|------------|------|
 
-The technology stack is expected to evolve as the platform develops.
+| Electron | Desktop runtime |
+| React | UI |
+| TypeScript | Frontend |
+| Vite | Build tooling |
+| Monaco Editor | Code editor |
+| Node.js | Electron services |
+| Python 3.11+ | Core services |
+| Meta Model API | Muse Spark, Muse Wonder |
+| Git | Version control |
 
 ---
 
 ## Project Structure
 
+'''
 KryomCode/
-│
 ├── app/
 │   ├── electron/
 │   │   ├── main.cjs
 │   │   ├── preload.cjs
 │   │   ├── ipc/
 │   │   └── services/
-│   │
 │   ├── src/
 │   │   ├── components/
 │   │   │   ├── ProjectExplorer/
@@ -263,514 +200,142 @@ KryomCode/
 │   │   │   ├── EditorTabs/
 │   │   │   ├── Terminal/
 │   │   │   ├── Problems/
-│   │   │   ├── Tests/
 │   │   │   ├── Git/
 │   │   │   ├── AI/
 │   │   │   └── ProjectIntelligence/
-│   │   │
 │   │   ├── services/
-│   │   ├── types/
-│   │   ├── hooks/
 │   │   ├── App.tsx
-│   │   ├── App.css
-│   │   └── vite-env.d.ts
-│   │
+│   │   └── App.css
 │   ├── package.json
 │   └── vite.config.ts
-│
-├── src/
-│   └── kryomcode/
-│       ├── core/
-│       ├── project/
-│       ├── filesystem/
-│       ├── intelligence/
-│       ├── ai/
-│       └── git/
-│
+├── src/kryomcode/
+│   ├── core/
+│   ├── ai/
+│   ├── git/
+│   ├── intelligence/
+│   └── project/
 ├── tests/
 ├── docs/
-│
-├── .github/
-│   └── workflows/
-│
-├── .gitignore
-├── pyproject.toml
-├── README.md
-├── CHANGELOG.md
-└── LICENSE
-
----
-
-## AI-Native Engineering
-
-AI is intended to become a core engineering layer of KryomCode rather than simply another chat panel.
-
-The planned agent loop is:
-
-OBSERVE
-   ↓
-UNDERSTAND
-   ↓
-PLAN
-   ↓
-ACT
-   ↓
-OBSERVE
-   ↓
-VERIFY
-   ↓
-REPAIR
-   ↓
-VERIFY
-
-For example, a developer could eventually provide:
-
-Create a REST API for user authentication.
-
-Requirements:
-
-- Python
-- FastAPI
-- PostgreSQL
-- JWT authentication
-- Unit tests
-- Docker support
-
-The intended workflow is:
-
-Natural Language Intent
-          ↓
-Project Understanding
-          ↓
-Engineering Plan
-          ↓
-File / Folder Creation
-          ↓
-Code Generation
-          ↓
-Dependency Installation
-          ↓
-Test Execution
-          ↓
-Failure Analysis
-          ↓
-Repair
-          ↓
-Verification
-
-This workflow represents the future direction of KryomCode and is not yet fully implemented.
-
----
-
-## Project Intelligence
-
-A central future component of KryomCode is the Project Intelligence Layer.
-
-Instead of treating every AI request as an isolated prompt, KryomCode is intended to build a structured understanding of the project.
-
-Project Structure
-       +
-Source Code
-       +
-Dependencies
-       +
-Configuration
-       +
-Git History
-       +
-Tests
-       +
-Documentation
-       +
-Diagnostics
-       │
-       ▼
-Project Intelligence
-
-The system should eventually understand:
-
-- Project architecture
-- File relationships
-- Dependencies
-- Important code paths
-- Configuration
-- Tests
-- Documentation
-- Git changes
-- Current errors
-- Developer intent
-
-This project-level context is fundamental to reliable AI-assisted software engineering.
+└── README.md
+'''
 
 ---
 
 ## AI Provider Architecture
 
-KryomCode is being designed with an AI-provider abstraction layer.
+'''
+        KryomCode
+            |
+        AI Router
+            |
+    Model Abstraction
+            |
+  +---------+----------+
+  |         |          |
+Meta API  OpenAI    Local Models
+(Muse)
 
-The objective is to avoid locking the platform to a single model provider.
+'''
 
-Potential integrations include:
-
-                KryomCode
-                    │
-               AI Router
-                    │
-          Model Abstraction
-                    │
-       ┌────────────┼────────────┐
-       ▼            ▼            ▼
-    OpenAI      Anthropic      Google
-       │
-       ├── Local Models
-       │
-       └── Future Providers
-
-The specific provider architecture will evolve as AI integration is implemented.
-
----
-
-## Multi-Agent Engineering
-
-Long-term development may include specialized engineering agents such as:
-
-Supervisor Agent
-      │
-      ├── Architect Agent
-      ├── Coding Agent
-      ├── Testing Agent
-      ├── Debugging Agent
-      ├── Security Agent
-      ├── Documentation Agent
-      ├── Git Agent
-      ├── GitHub Agent
-      └── Review Agent
-
-Each agent would have a defined responsibility and access to appropriate project tools.
-
----
-
-## Developer Control
-
-Autonomous software engineering requires strong developer controls.
-
-KryomCode is intended to provide explicit permissions around operations such as:
-
-File Read
-File Write
-File Delete
-Terminal Execution
-Network Access
-Git Operations
-GitHub Operations
-Package Installation
-Environment Variables
-Secrets
-
-Planned autonomy levels:
-
-Level 0 — Manual
-        Human performs operations.
-
-Level 1 — Assisted
-        AI suggests actions.
-
-Level 2 — Controlled Agent
-        AI performs approved actions.
-
-Level 3 — Autonomous Task
-        AI executes a defined task.
-
-Level 4 — Autonomous Project
-        AI manages a larger engineering workflow
-        under configured policies.
-
-Future controls are expected to include:
-
-- Approve
-- Reject
-- Pause
-- Stop
-- Retry
-- Undo
-- Rollback
-- Checkpoints
-- Diff review
-- Action history
-
----
-
-## Git & GitHub
-
-Git and GitHub are planned as first-class components of the KryomCode engineering workflow.
-
-The intended workflow is:
-
-Issue
-  ↓
-Understand
-  ↓
-Plan
-  ↓
-Code
-  ↓
-Test
-  ↓
-Commit
-  ↓
-Pull Request
-  ↓
-CI
-  ↓
-Review
-
-Future capabilities include:
-
-- Repository inspection
-- Git status
-- Diff viewing
-- Commit creation
-- Branch management
-- Pull request workflows
-- GitHub Issues
-- CI result inspection
-- AI-assisted code review
-- Automated failure analysis
-- AI-assisted repair
-
----
-
-## Testing & Verification
-
-KryomCode treats verification as a fundamental part of software engineering.
-
-Future capabilities include:
-
-- Test discovery
-- Test execution
-- Test result parsing
-- Failure analysis
-- Error localization
-- Automated repair
-- Regression testing
-- Post-change verification
-
-Core principle:
-
-«Generated code is not considered complete until it has been verified.»
+Hackathon focus is Meta API first. Other providers pluggable later.
 
 ---
 
 ## Roadmap
 
-Phase 6.3 — Development Environment Foundation
+### Hackathon MVP - Done for Nov 4 submission
 
-Completed
+- [x] VS Code-like layout
+- [x] AI Chat frontend
+- [x] Meta Model API connection
+- [x] GitHub integration
+- [x] End-to-end demo: prompt to working code
 
-- [x] Project Explorer
-- [x] File Reading
-- [x] Monaco Code Editor
-- [x] File Save System
-- [x] Multiple Editor Tabs
-- [x] Create File
-- [x] Create Folder
-- [x] Rename File / Folder
-- [x] Delete File / Folder
-- [x] Integrated Terminal
+### Next - Post Hackathon
 
-In Progress / Next
-
-- [ ] Problems & Diagnostics
-- [ ] Test Runner
-- [ ] Git Status & Diff
-- [ ] Git Commit
-- [ ] AI Provider Layer
-- [ ] AI Chat
-- [ ] Project Analysis
-- [ ] Code Generation
-- [ ] Project Intelligence
-- [ ] Settings & API Key Management
-- [ ] Error Handling
-- [ ] Application Packaging
-- [ ] Automated Testing
+- [ ] Test Runner with AI failure analysis
+- [ ] Full Project Intelligence layer
+- [ ] Agent loop: Observe -> Plan -> Act -> Verify -> Repair
+- [ ] Settings and API key vault
+- [ ] Application packaging for Windows/Mac/Linux
 - [ ] CI/CD
-- [ ] Documentation
-- [ ] v0.1.0 Release
 
----
+### Long Term Vision
 
-## Long-Term Roadmap
-
-KryomCode is ultimately intended to evolve toward:
-
-AI Engineering Agent
-
-A persistent AI agent capable of working directly on software projects.
-
-Autonomous Software Engineering
-
-From:
-
-Idea
-
-to:
-
-Plan
-→ Code
-→ Execute
-→ Test
-→ Debug
-→ Repair
-→ Verify
-
-under developer-defined permissions.
-
-Multi-Agent Engineering
-
-Specialized agents for architecture, coding, testing, debugging, security, documentation, Git, GitHub, and review.
-
-Browser & Runtime Agents
-
-Future agents may interact with:
-
-- Documentation
-- Web applications
-- APIs
-- Development servers
-- Browser environments
-- Runtime environments
-
-Local + Cloud AI
-
-Support for:
-
-Local AI
-    +
-Cloud AI
-    +
-Hybrid AI
-
-depending on capability, privacy, cost, and hardware.
-
-Extensible Tool Ecosystem
-
-KryomCode is intended to support an extensible tool and integration architecture.
-
----
-
-## Development Philosophy
-
-KryomCode is being developed incrementally.
-
-Each capability follows a cycle:
-
-Design
-   ↓
-Implementation
-   ↓
-Testing
-   ↓
-Runtime Verification
-   ↓
-Documentation
-   ↓
-Git Commit
-   ↓
-Next Capability
-
-The project prioritizes reliable engineering foundations before introducing advanced autonomous behavior.
+Autonomous software engineering with developer control levels 0 to 4, from manual to autonomous project, with approve, reject, pause, rollback and diff review.
 
 ---
 
 ## Development Setup
 
-Requirements
+Requirements:
 
 - Windows 10/11
-- Node.js
+- Node.js 18+
 - npm
 - Python 3.11+
 - Git
-- GitHub account
 
----
+Clone:
 
-## Clone
-
-git clone <https://github.com/KryomLabs/KryomCode.git>
+```bash
+git clone https://github.com/KryomLabs/KryomCode.git
 cd KryomCode
+```
 
----
+Install:
 
-## Install Dependencies
-
+```bash
 cd app
 npm install
+```
 
----
+Start development:
 
-## Start Development
-
+```bash
 npm run desktop:dev
+```
 
-This starts the Electron desktop application with the Vite development server.
+Build:
+
+```bash
+npm run build
+```
 
 ---
 
-## Build
+## Development Philosophy
 
-From the "app" directory:
+Built incrementally, solo:
 
-npm run build
+Design -> Implementation -> Testing -> Runtime Verification -> Docs -> Commit -> Next
+
+Reliable foundations first, then autonomous behavior.
 
 ---
 
 ## Contributing
 
-KryomCode is under active development.
-
-Contributions, bug reports, ideas, architectural discussions, documentation improvements, and feature proposals are welcome as the project matures.
-
-Before contributing, please review the repository's contribution guidelines and development documentation.
+KryomCode is solo-built and pre-release. Bug reports, ideas, architectural discussions and docs improvements are welcome.
 
 ---
 
 ## License
 
-KryomCode is distributed under the license included in this repository.
-
-See ""LICENSE"" (LICENSE) for details.
+MIT License. See LICENSE for details.
 
 ---
 
 ## Repository
 
-Organization: KryomLabs
+Organization: KryomLabs  
+Project: KryomCode  
+Repo: https: //github.com/KryomLabs/KryomCode
 
-Project: KryomCode
+If you like the vision:
 
-Repository:
+- Star the repo
+- Share feedback
+- Experiment with the build
 
-<https://github.com/KryomLabs/KryomCode>
-
----
-
-## Support KryomCode
-
-If you are interested in the project:
-
-- ⭐ Star the repository
-- 🐛 Report bugs
-- 💡 Propose features
-- 🔧 Contribute
-- 📖 Improve documentation
-- 🔬 Experiment with the project
-- 📢 Share KryomCode
-
----
-
-KryomCode
-
-AI-native software engineering.
-
-«From Idea to Working Software.»
+*KryomCode - AI-native software engineering. From Idea to Working Software.*
