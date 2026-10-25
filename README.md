@@ -30,26 +30,7 @@ Modern engineering is not just writing code. It is architecture, dependencies, t
 
 KryomCode brings it together:
 
-'''
-Human Intent
-     |
-     v
-+--------------+
-|  KryomCode   |
-| Understand   |
-| Plan         |
-| Generate     |
-| Modify       |
-| Execute      |
-| Test         |
-| Diagnose     |
-| Repair       |
-| Verify       |
-+--------------+
-     |
-     v
-Working Software
-'''
+![alt text](Meta_AI_863828251_29799799466288648_5467359264270911555_n_20261025_204731.webp)
 
 The objective is not to replace developers. The objective is to increase developer leverage.
 
