@@ -1,6 +1,6 @@
 """Default AI provider setup for KryomCode."""
 
-from kryomcode.ai.meta_provider import MetaProvider
+from kryomcode.ai.groq_provider import MetaProvider
 from kryomcode.ai.orchestrator import AIOrchestrator
 from kryomcode.ai.registry import AIProviderRegistry
 

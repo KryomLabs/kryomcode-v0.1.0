@@ -248,6 +248,7 @@ class MetaProvider:
         request: GenerationRequest,
     ) -> list[dict[str, Any]]:
         """Convert shared messages to Meta Responses API input items."""
+
         input_messages: list[dict[str, Any]] = []
 
         for message in request.messages:

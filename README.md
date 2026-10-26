@@ -15,9 +15,9 @@
 
 ---
 
-</div align="center">
-  </img src="assets/kryomcode-overview.png" alt="KryomCode overview infographic showing the IDE, workflow, architecture, stack, and project layout" width="100%" />
-</div>
+</p align="center">
+  <imgsrc="assets/kryomcode-overview.png" alt="KryomCode overview infographic showing the IDE, workflow, architecture, stack, and project layout" width="100%" />
+</p>
 
 > **Core principle:** AI should operate on the project—not merely talk about the project.
 
@@ -107,7 +107,6 @@ The diagram shows the target architecture, not a guarantee that every box is alr
 ![KryomCode technology stack diagram](assets/technology-stack.svg)
 
 | Technology | Role |
-
 |---|---|
 | Electron | Desktop application shell |
 | React | UI components and workspace interface |
@@ -167,7 +166,6 @@ KryomCode/
 KryomCode is an active, pre-release project. The table below intentionally distinguishes the desktop foundation from work that still needs verification in the current checkout.
 
 | Area | Status |
-
 |---|---|
 | Electron + React + TypeScript application | Implemented foundation |
 | Monaco editor and workspace UI | Implemented foundation |
@@ -226,7 +224,6 @@ npm run
 ## Development commands
 
 | Task | Command |
-
 |---|---|
 | Install app dependencies | `cd app && npm install` |
 | List available npm scripts | `cd app && npm run` |
@@ -278,12 +275,7 @@ The repository describes this project as MIT-licensed. Ensure a `LICENSE` file c
 - **Repository:** [KryomLabs/KryomCode](https://github.com/KryomLabs/KryomCode)
 - **Hackathon:** [Meta AI Developer Hackathon](https://cerebralvalley.ai/e/meta-ai-developer-hackathon)
 
----
-
-/div align="center">
-
-**KryomCode — AI-native software engineering. From Idea to Working Software.**
-
-Built with care for developers.
-
-</div>
+</p align="center">
+  <b>KryomCode — AI-native software engineering. From Idea to Working Software.</b> <br/>
+  Built with care for developers.
+</p>
