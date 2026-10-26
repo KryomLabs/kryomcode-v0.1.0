@@ -8,6 +8,7 @@ import {
   type PointerEvent as ReactPointerEvent,
 } from "react";
 
+import { aiService } from "./services/ai";
 import { filesystemService } from "./services/filesystem";
 import Editor, { type OnMount } from "@monaco-editor/react";
 
@@ -717,6 +718,15 @@ function App() {
     setBottomPanelVisible(true);
     setSaveStatus(message);
   };
+  const handleSendAIMessage = useCallback(
+    (request: Parameters<typeof aiService.generate>[0]) =>
+      aiService.generate({
+       ...request,
+       projectPath: projectPath || undefined,
+       activeFilePath: activeTabPath || undefined,
+    }),
+    [projectPath, activeTabPath],
+);
 
   // ---------------------------------------------------------
   // Derived UI state
@@ -895,14 +905,10 @@ function App() {
         <button
           type="button"
           className={`activity-icon ${
-            activeBottomPanel === "ai" && (<div className="utility-panel ai-activity-panel">
-              <AIChat
-                projectPath={projectPath}
-                onAction={handleAiAction}
-                onOpenProblems={() => showBottomPanel("problems")}
-              />
-              </div>)
-      }`}
+            activeBottomPanel === "ai" && bottomPanelVisible
+              ? "active"
+              : ""
+          }`}
           title="AI Activity"
           aria-label="AI Activity"
           onClick={() => showBottomPanel("ai")}
@@ -1666,67 +1672,13 @@ function App() {
               )}
 
               {activeBottomPanel === "ai" && (
-                <div className="utility-panel ai-activity-panel">
-                  <div className="utility-panel-heading">
-                    <span className="utility-panel-icon ai-logo">
-                      ✧
-                    </span>
-
-                    <div>
-                      <strong>AI Activity</strong>
-                      <p>
-                        Project assistant and engineering tasks
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="ai-activity-content">
-                    <div className="ai-activity-message">
-                      <span className="ai-activity-avatar">✧</span>
-
-                      <div>
-                        <strong>KryomCode Assistant</strong>
-
-                        <p>
-                          {projectPath
-                            ? `Workspace selected: ${projectPath}. Choose a task to continue.`
-                            : "Open a project to begin project-aware assistance."}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="ai-activity-actions">
-                      <button
-                        type="button"
-                        onClick={() =>
-                          setSaveStatus("Project analysis requested")
-                        }
-                      >
-                        Analyze project
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={() =>
-                          setSaveStatus(
-                            "Implementation plan requested",
-                          )
-                        }
-                      >
-                        Create implementation plan
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={() =>
-                          setActiveBottomPanel("problems")
-                        }
-                      >
-                        Review problems
-                      </button>
-                    </div>
-                  </div>
-                </div>
+                <AIChat
+                  projectPath={projectPath}
+                  activeFilePath={activeTabPath || undefined}
+                  onSendMessage={handleSendAIMessage}
+                  onAction={handleAiAction}
+                  onOpenProblems={() => showBottomPanel("problems")}
+                />
               )}
             </div>
           </div>

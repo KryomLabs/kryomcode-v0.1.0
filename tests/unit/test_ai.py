@@ -1,10 +1,9 @@
 import json
-from types import SimpleNamespace
 
 import pytest
 
 from kryomcode.ai.context import ContextDocument, collect_project_context
-from kryomcode.ai.openai_provider import OpenAIProvider
+from kryomcode.ai.meta_provider import MetaProvider
 from kryomcode.ai.providers import ChatMessage, GenerationRequest
 from kryomcode.ai.selection import select_relevant_context
 from kryomcode.ai.tool_calling import (
@@ -12,7 +11,6 @@ from kryomcode.ai.tool_calling import (
     ToolCallingResponse,
     ToolResult,
 )
-from kryomcode.ai.tools import ToolDefinition, ToolRegistry
 
 # ============================================================
 # Project context collection tests
@@ -494,137 +492,78 @@ def test_fake_provider_implements_provider_contract():
 
 
 # ============================================================
-# OpenAI provider adapter tests
+# Meta provider adapter tests
 # ============================================================
 
-def test_openai_provider_maps_request_and_response():
-    from kryomcode.ai.openai_provider import OpenAIProvider
-    from kryomcode.ai.providers import ChatMessage, GenerationRequest
 
-    class FakeResponses:
-        def create(self, **kwargs):
-            self.kwargs = kwargs
-            return SimpleNamespace(
-                output_text="Generated Python code",
-                usage=SimpleNamespace(
-                    input_tokens=15,
-                    output_tokens=9,
-                ),
+class FakeMetaHTTPResponse:
+    def __init__(self, payload):
+        self.payload = payload
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        return False
+
+    def read(self):
+        return json.dumps(self.payload).encode("utf-8")
+
+
+def install_fake_meta_response(
+    monkeypatch,
+    response_payload,
+    captured=None,
+):
+    monkeypatch.setenv("MODEL_API_KEY", "test-meta-key")
+
+    def fake_urlopen(request, timeout):
+        if captured is not None:
+            captured["url"] = request.full_url
+            captured["authorization"] = request.get_header(
+                "Authorization"
+            )
+            captured["timeout"] = timeout
+            captured["payload"] = json.loads(
+                request.data.decode("utf-8")
             )
 
-    class FakeClient:
-        def __init__(self):
-            self.responses = FakeResponses()
+        return FakeMetaHTTPResponse(response_payload)
 
-    client = FakeClient()
-    provider = OpenAIProvider(client=client)
+    monkeypatch.setattr(
+        "kryomcode.ai.meta_provider.urlopen",
+        fake_urlopen,
+    )
+
+
+def test_meta_provider_maps_request_and_response(monkeypatch):
+    captured = {}
+
+    install_fake_meta_response(
+        monkeypatch,
+        {
+            "model": "muse-spark-1.3",
+            "output": [
+                {
+                    "type": "message",
+                    "content": [
+                        {
+                            "type": "output_text",
+                            "text": "Generated Python code",
+                        }
+                    ],
+                }
+            ],
+            "usage": {
+                "input_tokens": 15,
+                "output_tokens": 9,
+            },
+        },
+        captured,
+    )
 
     request = GenerationRequest(
-        model="test-model",
-        messages=(
-            ChatMessage(role="system", content="You are a coding assistant."),
-            ChatMessage(role="user", content="Write a Python function."),
-        ),
-        temperature=0.3,
-        max_output_tokens=512,
-    )
-
-    result = provider.generate(request)
-
-    assert result.provider == "openai"
-    assert result.model == "test-model"
-    assert result.content == "Generated Python code"
-    assert result.input_tokens == 15
-    assert result.output_tokens == 9
-
-    assert client.responses.kwargs["model"] == "test-model"
-    assert client.responses.kwargs["temperature"] == 0.3
-    assert client.responses.kwargs["max_output_tokens"] == 512
-    assert len(client.responses.kwargs["input"]) == 2
-
-
-def test_openai_provider_handles_missing_usage():
-    from kryomcode.ai.openai_provider import OpenAIProvider
-    from kryomcode.ai.providers import ChatMessage, GenerationRequest
-
-    fake_client = SimpleNamespace(
-        responses=SimpleNamespace(
-            create=lambda **kwargs: SimpleNamespace(
-                output_text="Hello",
-                usage=None,
-            )
-        )
-    )
-
-    provider = OpenAIProvider(client=fake_client)
-    request = GenerationRequest(
-        model="test-model",
-        messages=(ChatMessage(role="user", content="Hello"),),
-    )
-
-    result = provider.generate(request)
-
-    assert result.content == "Hello"
-    assert result.input_tokens is None
-    assert result.output_tokens is None
-
-
-def test_openai_provider_rejects_missing_api_key(monkeypatch):
-    from kryomcode.ai.openai_provider import OpenAIProvider
-
-    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
-
-    with pytest.raises(ValueError, match="API key"):
-        OpenAIProvider()
-
-
-def test_openai_provider_rejects_missing_output_text():
-    from kryomcode.ai.openai_provider import OpenAIProvider
-    from kryomcode.ai.providers import ChatMessage, GenerationRequest
-
-    fake_client = SimpleNamespace(
-        responses=SimpleNamespace(
-            create=lambda **kwargs: SimpleNamespace(output_text=None)
-        )
-    )
-
-    provider = OpenAIProvider(client=fake_client)
-    request = GenerationRequest(
-        model="test-model",
-        messages=(ChatMessage(role="user", content="Hello"),),
-    )
-
-    with pytest.raises(RuntimeError, match="output_text"):
-        provider.generate(request)
-
-
-# ============================================================
-# Anthropic provider adapter tests
-# ============================================================
-
-def test_anthropic_provider_maps_request_and_response():
-    from kryomcode.ai.anthropic_provider import AnthropicProvider
-    from kryomcode.ai.providers import ChatMessage, GenerationRequest
-
-    class FakeMessages:
-        def create(self, **kwargs):
-            self.kwargs = kwargs
-            return SimpleNamespace(
-                content=[
-                    SimpleNamespace(type="text", text="Generated "),
-                    SimpleNamespace(type="text", text="Python code"),
-                ],
-                usage=SimpleNamespace(
-                    input_tokens=20,
-                    output_tokens=12,
-                ),
-            )
-
-    client = SimpleNamespace(messages=FakeMessages())
-    provider = AnthropicProvider(client=client)
-
-    request = GenerationRequest(
-        model="test-model",
+        model="muse-spark-1.3",
         messages=(
             ChatMessage(
                 role="system",
@@ -639,133 +578,98 @@ def test_anthropic_provider_maps_request_and_response():
         max_output_tokens=512,
     )
 
-    result = provider.generate(request)
+    result = MetaProvider().generate(request)
 
-    assert provider.name == "anthropic"
-    assert result.provider == "anthropic"
-    assert result.model == "test-model"
+    assert result.provider == "meta"
+    assert result.model == "muse-spark-1.3"
     assert result.content == "Generated Python code"
-    assert result.input_tokens == 20
-    assert result.output_tokens == 12
+    assert result.input_tokens == 15
+    assert result.output_tokens == 9
 
-    sent = client.messages.kwargs
-    assert sent["model"] == "test-model"
-    assert sent["max_tokens"] == 512
-    assert sent["temperature"] == 0.3
-    assert sent["system"] == "You are a coding assistant."
-    assert sent["messages"] == [
+    assert captured["url"] == "https://api.meta.ai/v1/responses"
+    assert captured["authorization"] == "Bearer test-meta-key"
+
+    payload = captured["payload"]
+    assert payload["model"] == "muse-spark-1.3"
+    assert payload["instructions"] == "You are a coding assistant."
+    assert payload["temperature"] == 0.3
+    assert payload["max_output_tokens"] == 512
+    assert payload["store"] is False
+    assert payload["input"][0]["role"] == "user"
+    assert payload["input"][0]["content"][0]["text"] == (
+        "Write a Python function."
+    )
+
+
+def test_meta_provider_handles_missing_usage(monkeypatch):
+    install_fake_meta_response(
+        monkeypatch,
         {
-            "role": "user",
-            "content": "Write a Python function.",
-        }
-    ]
-
-
-def test_anthropic_provider_combines_system_messages():
-    from kryomcode.ai.anthropic_provider import AnthropicProvider
-    from kryomcode.ai.providers import ChatMessage, GenerationRequest
-
-    class FakeMessages:
-        def create(self, **kwargs):
-            self.kwargs = kwargs
-            return SimpleNamespace(
-                content=[SimpleNamespace(type="text", text="OK")],
-                usage=None,
-            )
-
-    client = SimpleNamespace(messages=FakeMessages())
-    provider = AnthropicProvider(client=client)
+            "model": "muse-spark-1.3",
+            "output_text": "Hello",
+        },
+    )
 
     request = GenerationRequest(
-        model="test-model",
+        model="muse-spark-1.3",
         messages=(
-            ChatMessage(role="system", content="Instruction one."),
-            ChatMessage(role="system", content="Instruction two."),
-            ChatMessage(role="user", content="Continue."),
+            ChatMessage(role="user", content="Hello"),
         ),
     )
 
-    result = provider.generate(request)
-
-    assert result.content == "OK"
-    assert client.messages.kwargs["system"] == (
-        "Instruction one.\n\nInstruction two."
-    )
-
-
-def test_anthropic_provider_handles_missing_usage():
-    from kryomcode.ai.anthropic_provider import AnthropicProvider
-    from kryomcode.ai.providers import ChatMessage, GenerationRequest
-
-    client = SimpleNamespace(
-        messages=SimpleNamespace(
-            create=lambda **kwargs: SimpleNamespace(
-                content=[SimpleNamespace(type="text", text="Hello")],
-                usage=None,
-            )
-        )
-    )
-
-    provider = AnthropicProvider(client=client)
-    request = GenerationRequest(
-        model="test-model",
-        messages=(ChatMessage(role="user", content="Hello"),),
-    )
-
-    result = provider.generate(request)
+    result = MetaProvider().generate(request)
 
     assert result.content == "Hello"
     assert result.input_tokens is None
     assert result.output_tokens is None
 
 
-def test_anthropic_provider_rejects_missing_api_key(monkeypatch):
-    from kryomcode.ai.anthropic_provider import AnthropicProvider
+def test_meta_provider_requires_api_key(monkeypatch):
+    monkeypatch.delenv("MODEL_API_KEY", raising=False)
 
-    monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
-
-    with pytest.raises(ValueError, match="API key"):
-        AnthropicProvider()
-
-
-def test_anthropic_provider_rejects_system_only_request():
-    from kryomcode.ai.anthropic_provider import AnthropicProvider
-    from kryomcode.ai.providers import ChatMessage, GenerationRequest
-
-    provider = AnthropicProvider(
-        client=SimpleNamespace(messages=SimpleNamespace())
-    )
     request = GenerationRequest(
-        model="test-model",
+        model="muse-spark-1.3",
+        messages=(
+            ChatMessage(role="user", content="Hello"),
+        ),
+    )
+
+    with pytest.raises(ValueError, match="MODEL_API_KEY"):
+        MetaProvider().generate(request)
+
+
+def test_meta_provider_rejects_response_without_text(monkeypatch):
+    install_fake_meta_response(
+        monkeypatch,
+        {
+            "model": "muse-spark-1.3",
+            "output": [],
+        },
+    )
+
+    request = GenerationRequest(
+        model="muse-spark-1.3",
+        messages=(
+            ChatMessage(role="user", content="Hello"),
+        ),
+    )
+
+    with pytest.raises(RuntimeError, match="readable text"):
+        MetaProvider().generate(request)
+
+
+def test_meta_provider_rejects_system_only_request(monkeypatch):
+    monkeypatch.setenv("MODEL_API_KEY", "test-meta-key")
+
+    request = GenerationRequest(
+        model="muse-spark-1.3",
         messages=(
             ChatMessage(role="system", content="System instruction"),
         ),
     )
 
     with pytest.raises(ValueError, match="user or assistant"):
-        provider.generate(request)
-
-
-def test_anthropic_provider_rejects_missing_text_content():
-    from kryomcode.ai.anthropic_provider import AnthropicProvider
-    from kryomcode.ai.providers import ChatMessage, GenerationRequest
-
-    client = SimpleNamespace(
-        messages=SimpleNamespace(
-            create=lambda **kwargs: SimpleNamespace(
-                content=[SimpleNamespace(type="tool_use")]
-            )
-        )
-    )
-
-    provider = AnthropicProvider(client=client)
-    request = GenerationRequest(
-        model="test-model",
-        messages=(ChatMessage(role="user", content="Hello"),),
-    )
-
-    with pytest.raises(RuntimeError, match="text content"):
-        provider.generate(request)
+        MetaProvider().generate(request)
 
 
 # ============================================================
@@ -777,12 +681,12 @@ def test_registry_registers_and_retrieves_providers():
     from kryomcode.ai.registry import AIProviderRegistry
 
     registry = AIProviderRegistry()
-    provider = FakeProviderForRegistryTests("openai")
+    provider = FakeProviderForRegistryTests("example")
 
     registry.register(provider)
 
-    assert registry.get("openai") is provider
-    assert registry.provider_names == ("openai",)
+    assert registry.get("example") is provider
+    assert registry.provider_names == ("example",)
 
 
 def test_registry_rejects_duplicate_provider_names():
@@ -821,10 +725,10 @@ def test_registry_reports_unknown_provider():
     )
 
     registry = AIProviderRegistry()
-    registry.register(FakeProviderForRegistryTests("openai"))
+    registry.register(FakeProviderForRegistryTests("example"))
 
-    with pytest.raises(ProviderNotFoundError, match="openai"):
-        registry.get("anthropic")
+    with pytest.raises(ProviderNotFoundError, match="unavailable"):
+        registry.get("unavailable")
 
 
 def test_registry_generates_using_selected_provider():
@@ -851,10 +755,10 @@ def test_registry_returns_sorted_provider_names():
     from kryomcode.ai.registry import AIProviderRegistry
 
     registry = AIProviderRegistry()
-    registry.register(FakeProviderForRegistryTests("openai"))
-    registry.register(FakeProviderForRegistryTests("anthropic"))
+    registry.register(FakeProviderForRegistryTests("example"))
+    registry.register(FakeProviderForRegistryTests("alpha"))
 
-    assert registry.provider_names == ("anthropic", "openai")
+    assert registry.provider_names == ("alpha", "example")
 
 
 class FakeProviderForRegistryTests:
@@ -1138,7 +1042,6 @@ def test_tool_definitions_do_not_expose_handlers(tmp_path):
 # ============================================================
 
 
-
 def test_tool_call_accepts_valid_arguments():
     call = ToolCall(
         call_id="call_1",
@@ -1188,7 +1091,7 @@ def test_tool_calling_response_accepts_multiple_calls():
     response = ToolCallingResponse(
         content="I will inspect the project.",
         tool_calls=[first, second],
-        provider="openai",
+        provider="meta",
         model="test-model",
         finish_reason="tool_calls",
     )
@@ -1213,154 +1116,4 @@ def test_tool_calling_response_rejects_invalid_tool_call():
         ToolCallingResponse(
             content="",
             tool_calls=("not-a-tool-call",),
-        )
-
-
-# ============================================================
-# OpenAI tool-calling integration tests
-# ============================================================
-
-
-def _make_tool_call_response(call_id, name, arguments):
-    return SimpleNamespace(
-        output=[
-            SimpleNamespace(
-                type="function_call",
-                call_id=call_id,
-                name=name,
-                arguments=json.dumps(arguments),
-            )
-        ],
-        output_text="",
-        usage=None,
-    )
-
-
-def _make_final_response(text):
-    return SimpleNamespace(
-        output=[
-            SimpleNamespace(type="message"),
-        ],
-        output_text=text,
-        usage=None,
-    )
-
-
-def _make_test_registry(handler):
-    registry = ToolRegistry()
-    registry.register(
-        ToolDefinition(
-            name="inspect_project",
-            description="Inspect a test project.",
-            parameters={
-                "type": "object",
-                "properties": {
-                    "path": {"type": "string"},
-                },
-                "required": ["path"],
-                "additionalProperties": False,
-            },
-            handler=handler,
-        )
-    )
-    return registry
-
-
-def _make_test_request():
-    return GenerationRequest(
-        model="test-model",
-        messages=(
-            ChatMessage(role="user", content="Inspect this project."),
-        ),
-    )
-
-
-def test_openai_tool_call_executes_registered_tool():
-    calls = []
-    responses = [
-        _make_tool_call_response(
-            "call_1",
-            "inspect_project",
-            {"path": "."},
-        ),
-        _make_final_response("Project inspected."),
-    ]
-
-    class FakeResponses:
-        def create(self, **kwargs):
-            calls.append(kwargs)
-            return responses.pop(0)
-
-    client = SimpleNamespace(
-        responses=SimpleNamespace(create=FakeResponses().create)
-    )
-    registry = _make_test_registry(lambda args: {"entries": [args["path"]]})
-
-    result = OpenAIProvider(client=client).generate_with_tools(
-        _make_test_request(),
-        registry,
-    )
-
-    assert result.content == "Project inspected."
-    assert len(result.tool_calls) == 1
-    assert len(calls) == 2
-    assert calls[1]["input"][-1]["type"] == "function_call_output"
-
-
-def test_openai_tool_call_rejects_unknown_tool_without_execution():
-    responses = [
-        _make_tool_call_response("call_1", "unknown_tool", {}),
-        _make_final_response("The requested tool was unavailable."),
-    ]
-
-    def create(**kwargs):
-        return responses.pop(0)
-
-    client = SimpleNamespace(
-        responses=SimpleNamespace(create=create)
-    )
-    registry = _make_test_registry(lambda args: {"unexpected": True})
-
-    result = OpenAIProvider(client=client).generate_with_tools(
-        _make_test_request(),
-        registry,
-    )
-
-    assert result.content == "The requested tool was unavailable."
-    tool_output = result.tool_calls
-    assert len(tool_output) == 1
-
-
-def test_openai_tool_call_iteration_limit_is_enforced():
-    def create(**kwargs):
-        return _make_tool_call_response(
-            "call_1",
-            "inspect_project",
-            {"path": "."},
-        )
-
-    client = SimpleNamespace(
-        responses=SimpleNamespace(create=create)
-    )
-    registry = _make_test_registry(lambda args: {"ok": True})
-
-    with pytest.raises(RuntimeError, match="Maximum tool-call iterations"):
-        OpenAIProvider(client=client).generate_with_tools(
-            _make_test_request(),
-            registry,
-            max_tool_iterations=1,
-        )
-
-
-def test_openai_tool_call_rejects_invalid_iteration_limit():
-    client = SimpleNamespace(
-        responses=SimpleNamespace(create=lambda **kwargs: None)
-    )
-    registry = _make_test_registry(lambda args: {"ok": True})
-
-    with pytest.raises(ValueError, match="max_tool_iterations"):
-        OpenAIProvider(client=client).generate_with_tools(
-            _make_test_request(),
-            registry,
-            max_tool_iterations=0,
         )

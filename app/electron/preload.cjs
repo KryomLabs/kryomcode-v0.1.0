@@ -98,6 +98,25 @@ const kryomcodeAPI = {
 
   /**
    * =======================================================
+   * AI Integration
+   * =======================================================
+   *
+   * AI requests go through the Electron main process.
+   * Keep provider credentials out of the renderer.
+   * Matching handlers must be added to main.cjs.
+   */
+
+  aiGenerate: (request) =>
+    ipcRenderer.invoke(
+      "ai:generate",
+      request,
+    ),
+
+  aiGetStatus: () =>
+    ipcRenderer.invoke("ai:getStatus"),
+
+  /**
+   * =======================================================
    * Terminal
    * =======================================================
    */

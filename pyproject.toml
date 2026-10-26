@@ -19,12 +19,6 @@ dev = [
     "pytest>=8.0",
     "ruff>=0.6"
 ]
-openai = [
-    "openai>=1.66.0"
-]
-anthropic = [
-    "anthropic>=0.40.0"
-]
 
 [tool.setuptools]
 package-dir = {"" = "src"}
