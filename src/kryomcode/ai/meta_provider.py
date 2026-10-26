@@ -325,7 +325,7 @@ class MetaProvider:
         api_key = self._api_key
 
         if api_key is None:
-            api_key = os.environ.get("MODEL_API_KEY")
+            api_key = os.environ.get("META_API_KEY")
 
         if not isinstance(api_key, str) or not api_key.strip():
             raise ValueError(
